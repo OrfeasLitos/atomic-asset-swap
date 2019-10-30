@@ -1,0 +1,24 @@
+#include <obliv.oh>
+#include <stdio.h>
+
+#include "../obliv-c/test/oblivc/common/util.h"
+#include "add.h"
+
+extern double lap;
+
+void add(void* vargs) {
+  ProtocolIO *args = vargs;
+  obliv int summands[2];
+  obliv int sum;
+  OblivInputs specs[1];
+
+  int party = ocCurrentParty();
+
+  setupOblivInt(specs, summands + party - 1, args->summands[party - 1]);
+  feedOblivInputs(specs, 1, party);
+  printf("OT time: %lf s\n", wallClock() - lap); // TODO: do away with global var
+  sum = summands[0] + summands[1];
+  revealOblivInt(&args->sum, sum, 0);
+
+  printf("party %d: Yao gate count: %u\n", party, yaoGateCount());
+}
