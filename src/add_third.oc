@@ -21,9 +21,10 @@ void add(void* vargs) {
 
   double t2 = wallClock()-t1;
 
-  revealOblivInt(&args->sum, sum, 0);
+  int res;
+  revealOblivInt(&res, sum, 0);
 
-  assert(args->sum == 21);
-  printf("%d\n", args->sum);
+  assert(res == 21);
+  printf("%d\n", res);
   printf("time: %f\n", t2);
 }

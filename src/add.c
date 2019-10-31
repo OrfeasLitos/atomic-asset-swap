@@ -7,7 +7,6 @@
 #include "add.h"
 
 char *host = "localhost";
-double lap;
 
 int check_args(int argc, char *argv[]) {
   if (argc < 4) {
@@ -68,11 +67,11 @@ int main(int argc, char *argv[]) {
   io.summands[party - 1] = (int) strtol(argv[3], NULL, 10);
   setCurrentParty(&pd, party);
 
-  lap = wallClock();
+  double init_time = wallClock();
 
   execYaoProtocol(&pd, add, &io);
 
-  printf("total time: %lf s\n", wallClock() - lap);
+  printf("total time: %lf s\n", wallClock() - init_time);
   cleanupProtocol(&pd);
 
   if (test_add(party, &io)) {
