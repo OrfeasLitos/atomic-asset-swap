@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
   int party = (int) strtol(argv[2], NULL, 10);
 
-  if (party == 1) {
+  if (party == 2) {
     ocTestUtilTcpOrDie(&pd, host, argv[1]);
   } else {
     ocTestUtilTcpOrDie(&pd, NULL, argv[1]);
