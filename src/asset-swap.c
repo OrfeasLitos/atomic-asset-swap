@@ -136,6 +136,8 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  io.asset_plain = input.asset;
+
   // do all printing before the connection starts
   // or expect weird TCP failures...
   if (input.party == 1) {
