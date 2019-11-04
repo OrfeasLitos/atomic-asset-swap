@@ -94,16 +94,23 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (input.party == 2) {
-    ocTestUtilTcpOrDie(&pd, host, input.port);
+  // do all printint before the connection starts
+  // or expect weird TCP failures...
+  if (input.party == 1) {
+    printf("party: %d, port: %s\n", input.party, input.port);
   } else {
+    printf("party: %d, port: %s, filename: %s\n", input.party, input.port, input.asset);
+  }
+
+  if (input.party == 1) {
     ocTestUtilTcpOrDie(&pd, NULL, input.port);
+  } else {
+    ocTestUtilTcpOrDie(&pd, host, input.port);
   }
   setCurrentParty(&pd, input.party);
 
   double init_time = wallClock();
 
-  printf("%d %s %s\n", input.party, input.port, input.asset);
   execYaoProtocol(&pd, asset_swap, &io);
 
   printf("total time: %lf s\n", wallClock() - init_time);
