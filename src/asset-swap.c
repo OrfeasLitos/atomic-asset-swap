@@ -130,8 +130,8 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
   ProtocolDesc pd;
   ProtocolIO io;
-
   ParsedInput input;
+
   if (parse_args(&input, argc, argv)) {
     return 1;
   }
@@ -141,7 +141,8 @@ int main(int argc, char *argv[]) {
   if (input.party == 1) {
     printf("party: %d, port: %s\n", input.party, input.port);
   } else {
-    printf("party: %d, port: %s, filename: %s\n", input.party, input.port, argv[3]);
+    printf("party: %d, port: %s, filename: %s, contents: %s\n",
+           input.party, input.port, argv[3], input.asset);
   }
 
   if (input.party == 1) {
