@@ -27,9 +27,7 @@ void print_usage(char *bin_name) {
   fprintf(stderr, "  seller (party 2) must provide file name of digital asset\n");
 }
 
-int parse_args(ParsedInput *input, int argc, char *argv[]) {
-  int party;
-
+int check_args(int *party, int argc, char *argv[]) {
   if (argc < 3) {
     if (argc == 1) {
       fprintf(stderr, "port number, role missing\n");
@@ -45,19 +43,19 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     return 1;
   }
   else {
-    party = get_party(argv[2]);
-    if (party != 1 && party != 2) {
+    *party = get_party(argv[2]);
+    if (*party != 1 && *party != 2) {
       fprintf(stderr, "party must be either 1 or 2\n");
       print_usage(argv[0]);
       return 1;
     }
-    if (is_seller(party) && argc == 3) {
-      fprintf(stderr, "file missing\n");
+    if (is_seller(*party) && argc == 3) {
+      fprintf(stderr, "file missing in seller\n");
       print_usage(argv[0]);
       return 1;
     }
-    else if (!is_seller(party) && argc == 4) {
-      fprintf(stderr, "file not needed for receiver\n");
+    else if (!is_seller(*party) && argc == 4) {
+      fprintf(stderr, "file not needed in receiver\n");
       print_usage(argv[0]);
       return 1;
     }
@@ -73,13 +71,54 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     }
   }
 
-  input->party = party;
+  return 0;
+}
+
+int read_file(char **buf, char *file_name) {
+  FILE *fp;
+  long lSize;
+
+  fp = fopen(file_name, "rb");
+  if (!fp) {
+    fprintf(stderr, "Could not open file %s\n", file_name);
+    return 1;
+  }
+
+  fseek(fp, 0L, SEEK_END);
+  lSize = ftell(fp);
+  rewind(fp);
+
+  /* allocate memory for entire content */
+  *buf = malloc((lSize + 1) * sizeof(char));
+  if (!(*buf)) {
+    fclose(fp);
+    fprintf(stderr, "memory allocation failed\n");
+    return 1;
+  }
+
+  /* copy the file into the buffer */
+  if(1 != fread(*buf, lSize, 1, fp)) {
+    fclose(fp);
+    free(*buf);
+    fprintf(stderr, "reading from file %s failed\n", file_name);
+    return 1;
+  }
+
+  fclose(fp);
+  return 0;
+}
+
+int parse_args(ParsedInput *input, int argc, char *argv[]) {
+  if (check_args(&(input->party), argc, argv)) {
+    return 1;
+  }
+
   input->port = argv[1];
 
-  if (party == 2) {
-    input->asset = argv[3];// TODO
-  } else {
-    input->asset = NULL;
+  if (input->party == 2) {
+    if (read_file(&(input->asset), argv[3])) {
+      return 1;
+    }
   }
 
   return 0;
@@ -94,12 +133,12 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  // do all printint before the connection starts
+  // do all printing before the connection starts
   // or expect weird TCP failures...
   if (input.party == 1) {
     printf("party: %d, port: %s\n", input.party, input.port);
   } else {
-    printf("party: %d, port: %s, filename: %s\n", input.party, input.port, input.asset);
+    printf("party: %d, port: %s, filename: %s\n", input.party, input.port, argv[3]);
   }
 
   if (input.party == 1) {
@@ -115,6 +154,8 @@ int main(int argc, char *argv[]) {
 
   printf("total time: %lf s\n", wallClock() - init_time);
   cleanupProtocol(&pd);
+
+  free(input.asset);
 
   return 0;
 }
