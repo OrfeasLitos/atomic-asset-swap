@@ -74,9 +74,10 @@ int check_args(int *party, int argc, char *argv[]) {
   return 0;
 }
 
+// https://stackoverflow.com/questions/3747086/reading-the-whole-text-file-into-a-char-array-in-c
 int read_file(char **buf, char *file_name) {
   FILE *fp;
-  long lSize;
+  long file_size;
 
   fp = fopen(file_name, "rb");
   if (!fp) {
@@ -85,11 +86,11 @@ int read_file(char **buf, char *file_name) {
   }
 
   fseek(fp, 0L, SEEK_END);
-  lSize = ftell(fp);
+  file_size = ftell(fp);
   rewind(fp);
 
   /* allocate memory for entire content */
-  *buf = malloc((lSize + 1) * sizeof(char));
+  *buf = malloc((file_size + 1) * sizeof(char));
   if (!(*buf)) {
     fclose(fp);
     fprintf(stderr, "memory allocation failed\n");
@@ -97,12 +98,14 @@ int read_file(char **buf, char *file_name) {
   }
 
   /* copy the file into the buffer */
-  if(1 != fread(*buf, lSize, 1, fp)) {
+  if(1 != fread(*buf, file_size, 1, fp)) {
     fclose(fp);
     free(*buf);
     fprintf(stderr, "reading from file %s failed\n", file_name);
     return 1;
   }
+
+  buf[file_size] = '\0';
 
   fclose(fp);
   return 0;
