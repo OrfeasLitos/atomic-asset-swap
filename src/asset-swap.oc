@@ -12,5 +12,34 @@ void asset_swap(void* vargs) {
   // TODO: fill in actual protocol
   double t2 = wallClock() - t1;
 
+  /* Run by Seller right after running GC
+   * - args->secret is GC output
+   * - args->secret_hash has been sent by Buyer
+   *
+   * assert(!strcmp(secret_hash(args->secret), args->secret_hash));
+   */
+
+  /* Run in GC
+   * - args->asset_plain is GC input
+   * - args->asset_hash is public information
+   *
+   * assert(!strcmp(asset_hash(args->asset_plain), args->asset_hash));
+   */
+
+  /* Run in GC
+   * - args->asset_cipher is hardcoded in GC
+   *   (Buyer hardcodes it after receiving from Seller)
+   * - args->asset_plain is GC input
+   *
+   * assert(!strcmp(decrypt(args->asset_cipher), args->asset_plain));
+   */
+
+  /* Run in GC
+   * - args->key is GC input
+   * - args->key_hash is hardcoded in GC
+   *   (Buyer hardcodes it after receiving from Seller)
+   * assert(!strcmp(sha256(args->key), args->key_hash));
+   */
+
   printf("time: %f\n", t2);
 }
