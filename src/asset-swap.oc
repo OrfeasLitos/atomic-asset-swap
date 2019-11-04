@@ -6,5 +6,11 @@
 #include "asset-swap.h"
 
 void asset_swap(void* vargs) {
-  printf("Hello Obliv World\n");
+  ProtocolIO *args = vargs;
+
+  double t1 = wallClock();
+  // TODO: fill in actual protocol
+  double t2 = wallClock() - t1;
+
+  printf("time: %f\n", t2);
 }
