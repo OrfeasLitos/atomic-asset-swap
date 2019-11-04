@@ -1,0 +1,10 @@
+#include <obliv.oh>
+#include <stdio.h>
+#include <assert.h>
+
+#include "../obliv-c/test/oblivc/common/util.h"
+#include "asset-swap.h"
+
+void asset_swap(void* vargs) {
+  printf("Hello Obliv World\n");
+}
