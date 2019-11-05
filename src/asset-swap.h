@@ -1,5 +1,8 @@
 #pragma once
 
+extern const int SELLER;
+extern const int BUYER;
+
 typedef struct {
   char *secret;
   char *secret_hash;

@@ -6,7 +6,9 @@
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
 
-char *host = "localhost";
+const char *host = "localhost";
+const int SELLER = 2;
+const int BUYER  = 1;
 
 typedef struct {
   int party;
@@ -19,7 +21,7 @@ int get_party(char *input) {
 }
 
 bool is_seller(int party) {
-  return party == 2;
+  return party == SELLER;
 }
 
 void print_usage(char *bin_name) {
@@ -44,7 +46,7 @@ int check_args(int *party, int argc, char *argv[]) {
   }
   else {
     *party = get_party(argv[2]);
-    if (*party != 1 && *party != 2) {
+    if (*party != BUYER && *party != SELLER) {
       fprintf(stderr, "party must be either 1 or 2\n");
       print_usage(argv[0]);
       return 1;
@@ -118,7 +120,7 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
 
   input->port = argv[1];
 
-  if (input->party == 2) {
+  if (input->party == SELLER) {
     if (read_file(&(input->asset), argv[3])) {
       return 1;
     }
@@ -140,14 +142,14 @@ int main(int argc, char *argv[]) {
 
   // do all printing before the connection starts
   // or expect weird TCP failures...
-  if (input.party == 1) {
+  if (input.party == BUYER) {
     printf("party: %d, port: %s\n", input.party, input.port);
   } else {
     printf("party: %d, port: %s, filename: %s, contents: %s\n",
            input.party, input.port, argv[3], input.asset);
   }
 
-  if (input.party == 1) {
+  if (input.party == BUYER) {
     ocTestUtilTcpOrDie(&pd, NULL, input.port);
   } else {
     ocTestUtilTcpOrDie(&pd, host, input.port);
