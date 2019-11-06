@@ -1,6 +1,6 @@
 SOURCE=asset-swap.oc
 UTIL=../obliv-c/test/oblivc/common/util.c
-CFLAGS="-DREMOTE_HOST=localhost -O3 -I"
+CFLAGS="-lssl -lcrypto -DREMOTE_HOST=localhost -O3 -I"
 ../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} asset-swap.c ${UTIL}
 
 PORT=`cat port`

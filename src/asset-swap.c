@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <ctype.h>
+#include <openssl/sha.h>
 
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
@@ -141,6 +142,7 @@ int main(int argc, char *argv[]) {
   if (input.party == SELLER) {
     io.asset_plain = input.asset;
     io.asset_plain_size = input.asset_size;
+    io.asset_hash = SHA256(io.asset_plain, io.asset_plain_size, NULL);
   }
 
   // do all printing before the connection starts
