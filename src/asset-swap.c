@@ -6,18 +6,18 @@
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
 
-const char *host = "localhost";
+const unsigned char *host = "localhost";
 const int SELLER = 2;
 const int BUYER  = 1;
 
 typedef struct {
   int party;
-  char *port;
-  char *asset;
+  unsigned char *port;
+  unsigned char *asset;
   int asset_size;
 } ParsedInput;
 
-int get_party(char *input) {
+int get_party(unsigned char *input) {
   return (int) strtol(input, NULL, 10);
 }
 
@@ -78,7 +78,7 @@ int check_args(int *party, int argc, char *argv[]) {
 }
 
 // https://stackoverflow.com/questions/3747086/reading-the-whole-text-file-into-a-char-array-in-c
-int read_file(char **buf, long *file_size, char *file_name) {
+int read_file(unsigned char **buf, long *file_size, char *file_name) {
   FILE *fp;
 
   fp = fopen(file_name, "rb");
@@ -92,7 +92,7 @@ int read_file(char **buf, long *file_size, char *file_name) {
   rewind(fp);
 
   /* allocate memory for entire content */
-  *buf = malloc((*file_size + 1) * sizeof(char));
+  *buf = malloc((*file_size + 1) * sizeof(unsigned char));
   if (!(*buf)) {
     fclose(fp);
     fprintf(stderr, "memory allocation failed\n");

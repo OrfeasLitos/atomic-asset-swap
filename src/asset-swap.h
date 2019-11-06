@@ -14,17 +14,17 @@ extern const int SELLER;
 extern const int BUYER;
 
 typedef struct {
-  char *secret;
-  char *secret_hash;
+  unsigned char *secret;
+  unsigned char *secret_hash;
 
-  char *asset_plain;
+  unsigned char *asset_plain;
   int asset_plain_size;
-  char *asset_cipher;
+  unsigned char *asset_cipher;
   int asset_cipher_size;
-  char *asset_hash;
+  unsigned char *asset_hash;
 
-  char *key;
-  char *key_hash;
+  unsigned char *key;
+  unsigned char *key_hash;
 } ProtocolIO;
 
 void asset_swap(void *arg);
