@@ -6,7 +6,18 @@
 #include "asset-swap.h"
 
 void asset_swap(void* vargs) {
-  ProtocolIO *args = vargs;
+  ProtocolIO *args = (ProtocolIO*) vargs;
+
+  obliv char *asset_hash;
+  asset_hash = args->asset_hash;
+
+  int asset_plain_size = ocBroadcastInt(args->asset_plain_size, SELLER);
+
+  obliv char asset_plain[MAX_ASSET_PLAIN_SIZE];
+  feedOblivCharArray(
+    asset_plain, args->asset_plain,
+    asset_plain_size, SELLER
+  );
 
   double t1 = wallClock();
   // TODO: fill in actual protocol

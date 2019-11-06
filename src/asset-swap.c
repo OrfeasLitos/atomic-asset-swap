@@ -14,6 +14,7 @@ typedef struct {
   int party;
   char *port;
   char *asset;
+  int asset_size;
 } ParsedInput;
 
 int get_party(char *input) {
@@ -77,9 +78,8 @@ int check_args(int *party, int argc, char *argv[]) {
 }
 
 // https://stackoverflow.com/questions/3747086/reading-the-whole-text-file-into-a-char-array-in-c
-int read_file(char **buf, char *file_name) {
+int read_file(char **buf, long *file_size, char *file_name) {
   FILE *fp;
-  long file_size;
 
   fp = fopen(file_name, "rb");
   if (!fp) {
@@ -88,11 +88,11 @@ int read_file(char **buf, char *file_name) {
   }
 
   fseek(fp, 0L, SEEK_END);
-  file_size = ftell(fp);
+  *file_size = ftell(fp);
   rewind(fp);
 
   /* allocate memory for entire content */
-  *buf = malloc((file_size + 1) * sizeof(char));
+  *buf = malloc((*file_size + 1) * sizeof(char));
   if (!(*buf)) {
     fclose(fp);
     fprintf(stderr, "memory allocation failed\n");
@@ -100,14 +100,14 @@ int read_file(char **buf, char *file_name) {
   }
 
   /* copy the file into the buffer */
-  if(1 != fread(*buf, file_size, 1, fp)) {
+  if(1 != fread(*buf, *file_size, 1, fp)) {
     fclose(fp);
     free(*buf);
     fprintf(stderr, "reading from file %s failed\n", file_name);
     return 1;
   }
 
-  buf[file_size] = '\0';
+  buf[*file_size] = '\0';
 
   fclose(fp);
   return 0;
@@ -121,7 +121,7 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
   input->port = argv[1];
 
   if (input->party == SELLER) {
-    if (read_file(&(input->asset), argv[3])) {
+    if (read_file(&(input->asset), &(input->asset_size), argv[3])) {
       return 1;
     }
   }
@@ -138,7 +138,10 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  io.asset_plain = input.asset;
+  if (input.party == SELLER) {
+    io.asset_plain = input.asset;
+    io.asset_plain_size = input.asset_size;
+  }
 
   // do all printing before the connection starts
   // or expect weird TCP failures...
