@@ -14,8 +14,11 @@ const int BUYER  = 1;
 typedef struct {
   int party;
   unsigned char *port;
+
   unsigned char *asset;
   int asset_size;
+  unsigned char *cipher;
+  int cipher_size;
 } ParsedInput;
 
 int get_party(unsigned char *input) {
@@ -32,37 +35,26 @@ void print_usage(char *bin_name) {
 }
 
 int check_args(int *party, int argc, char *argv[]) {
-  if (argc < 3) {
+  if (argc != 4) {
     if (argc == 1) {
-      fprintf(stderr, "port number, role missing\n");
-    } else { // argc == 2
-      fprintf(stderr, "role missing\n");
+      fprintf(stderr, "port number, role, file missing\n");
+    } else if (argc == 2) {
+      fprintf(stderr, "role, file missing\n");
+    } else if (argc == 3) {
+      fprintf(stderr, "file missing\n");
+    } else {
+      fprintf(stderr, "too many arguments\n");
     }
 
     print_usage(argv[0]);
     return 1;
   }
-  else if (argc > 4) {
+
+  *party = get_party(argv[2]);
+  if (*party != BUYER && *party != SELLER) {
+    fprintf(stderr, "party must be either 1 or 2\n");
     print_usage(argv[0]);
     return 1;
-  }
-  else {
-    *party = get_party(argv[2]);
-    if (*party != BUYER && *party != SELLER) {
-      fprintf(stderr, "party must be either 1 or 2\n");
-      print_usage(argv[0]);
-      return 1;
-    }
-    if (is_seller(*party) && argc == 3) {
-      fprintf(stderr, "file missing in seller\n");
-      print_usage(argv[0]);
-      return 1;
-    }
-    else if (!is_seller(*party) && argc == 4) {
-      fprintf(stderr, "file not needed in receiver\n");
-      print_usage(argv[0]);
-      return 1;
-    }
   }
 
   for (int i = 1; i < 3; i++) {
@@ -125,6 +117,10 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     if (read_file(&(input->asset), &(input->asset_size), argv[3])) {
       return 1;
     }
+  } else { // BUYER
+    if (read_file(&(input->cipher), &(input->cipher_size), argv[3])) {
+      return 1;
+    }
   }
 
   return 0;
@@ -143,6 +139,10 @@ int main(int argc, char *argv[]) {
     io.asset_plain = input.asset;
     io.asset_plain_size = input.asset_size;
     io.asset_hash = SHA256(io.asset_plain, io.asset_plain_size, NULL);
+    io.key = "secret";
+  } else { // BUYER
+    io.asset_cipher = input.cipher;
+    io.asset_cipher_size = input.cipher_size;
   }
 
   // do all printing before the connection starts
