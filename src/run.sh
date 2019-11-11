@@ -4,7 +4,7 @@ CIPHER_FILE=cipher
 EXECUTABLE=bin
 
 SOURCE="asset-swap.oc asset-swap.c"
-UTIL=../obliv-c/test/oblivc/common/util.c
+UTIL="../obliv-c/test/oblivc/common/util.c aes.oc"
 CFLAGS="-lssl -lcrypto -DREMOTE_HOST=localhost -O3 -I"
 
 python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CIPHER_FILE}

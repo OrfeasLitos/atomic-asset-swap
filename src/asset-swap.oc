@@ -5,6 +5,7 @@
 
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
+#include "aes.h"
 
 typedef obliv unsigned char obl_char;
 
@@ -20,20 +21,21 @@ void asset_swap(void* vargs) {
   int asset_cipher_size = ocBroadcastInt(args->asset_cipher_size, BUYER);
   int asset_plain_size = ocBroadcastInt(args->asset_plain_size, SELLER);
 
-  obl_char asset_cipher[MAX_ASSET_CIPHER_SIZE], key[KEY_SIZE],
-           expected_asset_plain[MAX_ASSET_PLAIN_SIZE],
-           actual_asset_plain[MAX_ASSET_PLAIN_SIZE];
+  obl_char expected_asset_cipher[MAX_ASSET_CIPHER_SIZE],
+           asset_plain[MAX_ASSET_PLAIN_SIZE], key[KEY_SIZE];
 
   double t1 = wallClock();
-  feedOblivCharArray(asset_cipher, args->asset_cipher,asset_cipher_size, BUYER);
-  feedOblivCharArray(actual_asset_plain, args->asset_plain, asset_plain_size, SELLER);
+
+  feedOblivCharArray(expected_asset_cipher,
+    args->asset_cipher, asset_cipher_size, BUYER);
+  feedOblivCharArray(asset_plain, args->asset_plain, asset_plain_size, SELLER);
   feedOblivCharArray(key, args->key, KEY_SIZE, SELLER);
-  //expected_asset_plain = aes_decrypt(key, asset_cipher); // TODO: fix
-  //if (ocCurrentParty() == SELLER) args->asset_plain[0] = 'l';
-  feedOblivCharArray(expected_asset_plain, args->asset_plain, asset_plain_size, SELLER);
+
+  // replaces asset_plain with cipher
+  aes_encrypt(asset_plain, key);
   obliv bool equal = true;
-  for (int i = 0; i < asset_plain_size; ++i) {
-    obliv if (expected_asset_plain[i] != actual_asset_plain[i]) {
+  for (int i = 0; i < asset_cipher_size; ++i) {
+    obliv if (expected_asset_cipher[i] != asset_plain[i]) {
       equal = false;
     }
   }
@@ -66,14 +68,6 @@ void asset_swap(void* vargs) {
    * - args->asset_hash is public information
    *
    * assert(!strcmp(asset_hash(args->asset_plain), args->asset_hash));
-   */
-
-  /* Run in GC
-   * - args->asset_cipher is hardcoded in GC
-   *   (Buyer hardcodes it after receiving from Seller)
-   * - args->asset_plain is GC input
-   *
-   * assert(!strcmp(decrypt(args->asset_cipher), args->asset_plain));
    */
 
   /* Run in GC - translate SHA256 to obliv-c (definitely with sha256; must be doable onchain)
