@@ -10,8 +10,10 @@ python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CI
 
 ../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} asset-swap.c ${UTIL}
 
-PORT=`cat port`
-echo $((PORT + 1)) > port
-./a.out ${PORT} 1 ${CIPHER_FILE} &
-./a.out ${PORT} 2 ${ASSET_FILE}
-rm a.out ${CIPHER_FILE}
+if [[ -f "a.out" ]]; then
+  PORT=`cat port`
+  echo $((PORT + 1)) > port
+  ./a.out ${PORT} 1 ${CIPHER_FILE} &
+  ./a.out ${PORT} 2 ${ASSET_FILE}
+  rm a.out ${CIPHER_FILE}
+fi
