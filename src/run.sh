@@ -1,3 +1,4 @@
+KEY_FILE=key
 ASSET_FILE=movie.mp4
 CIPHER_FILE=cipher
 
@@ -5,7 +6,7 @@ SOURCE=asset-swap.oc
 UTIL=../obliv-c/test/oblivc/common/util.c
 CFLAGS="-lssl -lcrypto -DREMOTE_HOST=localhost -O3 -I"
 
-python encrypt-file.py --input ${ASSET_FILE} --output ${CIPHER_FILE}
+python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CIPHER_FILE}
 
 ../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} asset-swap.c ${UTIL}
 
