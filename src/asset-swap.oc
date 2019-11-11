@@ -6,6 +6,8 @@
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
 
+typedef obliv unsigned char obl_char;
+
 unsigned char *good_secret = "1234567890abcdefghijklmnopqrstu";
 unsigned char *bad_secret  = "fake_secret_to_baddies_like_you";
 
@@ -18,9 +20,9 @@ void asset_swap(void* vargs) {
   int asset_cipher_size = ocBroadcastInt(args->asset_cipher_size, BUYER);
   int asset_plain_size = ocBroadcastInt(args->asset_plain_size, SELLER);
 
-  obliv unsigned char asset_cipher[MAX_ASSET_CIPHER_SIZE], key[KEY_SIZE],
-                      expected_asset_plain[MAX_ASSET_PLAIN_SIZE],
-                      actual_asset_plain[MAX_ASSET_PLAIN_SIZE];
+  obl_char asset_cipher[MAX_ASSET_CIPHER_SIZE], key[KEY_SIZE],
+           expected_asset_plain[MAX_ASSET_PLAIN_SIZE],
+           actual_asset_plain[MAX_ASSET_PLAIN_SIZE];
 
   double t1 = wallClock();
   feedOblivCharArray(asset_cipher, args->asset_cipher,asset_cipher_size, BUYER);
@@ -38,7 +40,7 @@ void asset_swap(void* vargs) {
 
   // TODO: find faster way to reveal secret
   // and use user-defined secret
-  obliv unsigned char secret[SECRET_SIZE];
+  obl_char secret[SECRET_SIZE];
   obliv if (equal) {
     for (int i = 0; i < SECRET_SIZE; ++i) {
       secret[i] = good_secret[i];
