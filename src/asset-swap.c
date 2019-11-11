@@ -166,6 +166,9 @@ int main(int argc, char *argv[]) {
   execYaoProtocol(&pd, asset_swap, &io);
 
   printf("total time: %lf s\n", wallClock() - init_time);
+  if (input.party == SELLER) {
+    printf("%s\n", io.secret);
+  }
   cleanupProtocol(&pd);
 
   free(input.asset);

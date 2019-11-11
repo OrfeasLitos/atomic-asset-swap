@@ -14,7 +14,7 @@ extern const int SELLER;
 extern const int BUYER;
 
 typedef struct {
-  unsigned char *secret;
+  unsigned char secret[SECRET_SIZE];
   unsigned char *secret_hash;
 
   unsigned char *asset_plain;
