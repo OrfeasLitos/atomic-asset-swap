@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     io.asset_plain = input.asset;
     io.asset_plain_size = input.asset_size;
     io.asset_hash = SHA256(io.asset_plain, io.asset_plain_size, NULL);
-    io.key = "secret";
+    io.key = "too_much_entropy";
   } else { // BUYER
     io.asset_cipher = input.cipher;
     io.asset_cipher_size = input.cipher_size;
