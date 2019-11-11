@@ -15,6 +15,6 @@ if [[ -f "${EXECUTABLE}" ]]; then
   PORT=`cat port`
   echo $((PORT + 1)) > port
   ./${EXECUTABLE} ${PORT} 1 ${CIPHER_FILE} &
-  ./${EXECUTABLE} ${PORT} 2 ${ASSET_FILE}
+  ./${EXECUTABLE} ${PORT} 2 ${ASSET_FILE} ${KEY_FILE}
   rm ${EXECUTABLE} ${CIPHER_FILE}
 fi

@@ -7,7 +7,7 @@
 #define MAX_ASSET_CIPHER_SIZE 1024
 #define ASSET_HASH_SIZE 32
 
-#define KEY_SIZE 32
+#define KEY_SIZE 16
 #define KEY_HASH_SIZE 32
 
 extern const int SELLER;

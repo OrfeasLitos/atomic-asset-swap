@@ -19,6 +19,8 @@ typedef struct {
   int asset_size;
   unsigned char *cipher;
   int cipher_size;
+
+  unsigned char *key;
 } ParsedInput;
 
 int get_party(unsigned char *input) {
@@ -30,29 +32,26 @@ bool is_seller(int party) {
 }
 
 void print_usage(char *bin_name) {
-  fprintf(stderr, "usage: %s <port> <party number: 1|2> <if party == 2: file>\n", bin_name);
-  fprintf(stderr, "  seller (party 2) must provide file name of digital asset\n");
+  fprintf(stderr, "usage: %s <port> <party_number: 1|2>"
+                  " ?<file> ?<file>\n", bin_name);
+  fprintf(stderr, "    for <party_number> \"1\" "
+                  "(buyer), add <cipher_file>\n");
+  fprintf(stderr, "    for <party_number> \"2\" "
+                  "(seller), add <asset_file> <key_file>\n");
 }
 
 int check_args(int *party, int argc, char *argv[]) {
-  if (argc != 4) {
+  if (argc < 4 || argc > 5) {
     if (argc == 1) {
-      fprintf(stderr, "port number, role, file missing\n");
+      fprintf(stderr, "port number, role, file(s) missing\n\n");
     } else if (argc == 2) {
-      fprintf(stderr, "role, file missing\n");
+      fprintf(stderr, "role, file(s) missing\n\n");
     } else if (argc == 3) {
-      fprintf(stderr, "file missing\n");
+      fprintf(stderr, "file(s) missing\n\n");
     } else {
-      fprintf(stderr, "too many arguments\n");
+      fprintf(stderr, "too many arguments\n\n");
     }
 
-    print_usage(argv[0]);
-    return 1;
-  }
-
-  *party = get_party(argv[2]);
-  if (*party != BUYER && *party != SELLER) {
-    fprintf(stderr, "party must be either 1 or 2\n");
     print_usage(argv[0]);
     return 1;
   }
@@ -60,11 +59,32 @@ int check_args(int *party, int argc, char *argv[]) {
   for (int i = 1; i < 3; i++) {
     for (int j = 0; argv[i][j] != '\0'; j++) {
       if (!isdigit(argv[i][j])) {
-        fprintf(stderr, "Argument %d not a number: %c not a digit", i, argv[i][j]);
+        fprintf(stderr, "Argument %d not a number: "
+                        "%c not a digit\n\n", i, argv[i][j]);
         print_usage(argv[0]);
         return 1;
       }
     }
+  }
+
+  *party = get_party(argv[2]);
+  if (*party != BUYER && *party != SELLER) {
+    fprintf(stderr, "party must be either 1 or 2\n\n");
+    print_usage(argv[0]);
+    return 1;
+  }
+
+  if (*party == BUYER && argc != 4) {
+    fprintf(stderr, "party 1 (buyer) must have a <cipher_file>\n\n");
+    print_usage(argv[0]);
+    return 1;
+  }
+
+  if (*party == SELLER && argc != 5) {
+    fprintf(stderr, "party 2 (seller) must have an "
+                    "<asset_file> and a <key_file>\n\n");
+    print_usage(argv[0]);
+    return 1;
   }
 
   return 0;
@@ -117,6 +137,15 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     if (read_file(&(input->asset), &(input->asset_size), argv[3])) {
       return 1;
     }
+    long key_size;
+    if (read_file(&(input->key), &key_size, argv[4])) {
+      return 1;
+    }
+    if (key_size != KEY_SIZE) {
+      fprintf(stderr, "got key of size %d, should "
+                      "be %d bytes\n", key_size, KEY_SIZE);
+      return 1;
+    }
   } else { // BUYER
     if (read_file(&(input->cipher), &(input->cipher_size), argv[3])) {
       return 1;
@@ -139,7 +168,7 @@ int main(int argc, char *argv[]) {
     io.asset_plain = input.asset;
     io.asset_plain_size = input.asset_size;
     io.asset_hash = SHA256(io.asset_plain, io.asset_plain_size, NULL);
-    io.key = "too_much_entropy";
+    io.key = input.key;
   } else { // BUYER
     io.asset_cipher = input.cipher;
     io.asset_cipher_size = input.cipher_size;
