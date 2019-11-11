@@ -52,14 +52,14 @@ void asset_swap(void* vargs) {
 
   double t2 = wallClock() - t1;
 
-  /* Run by Seller right after running GC
+  /* Run by Seller right after running GC - Last (definitely with sha256; out of circuit)
    * - args->secret is GC output
    * - args->secret_hash has been sent by Buyer
    *
    * assert(!strcmp(secret_hash(args->secret), args->secret_hash));
    */
 
-  /* Run in GC
+  /* Run in GC - translate SHA256 to obliv-c (maybe with pedersen commitment for speed)
    * - args->asset_plain is GC input
    * - args->asset_hash is public information
    *
@@ -74,7 +74,7 @@ void asset_swap(void* vargs) {
    * assert(!strcmp(decrypt(args->asset_cipher), args->asset_plain));
    */
 
-  /* Run in GC
+  /* Run in GC - translate SHA256 to obliv-c (definitely with sha256; must be doable onchain)
    * - args->key is GC input
    * - args->key_hash is hardcoded in GC
    *   (Buyer hardcodes it after receiving from Seller)
