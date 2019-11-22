@@ -10,6 +10,8 @@
 #define KEY_SIZE 16
 #define KEY_HASH_SIZE 32
 
+#define AES_BLOCK_SIZE 16
+
 extern const int SELLER;
 extern const int BUYER;
 
