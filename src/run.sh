@@ -7,6 +7,8 @@ SOURCE="asset-swap.oc asset-swap.c"
 UTIL="../obliv-c/test/oblivc/common/util.c aes.oc"
 CFLAGS="-lssl -lcrypto -DREMOTE_HOST=localhost -O3 -I"
 
+set -e
+
 python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CIPHER_FILE}
 
 ../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} ${UTIL} -o ${EXECUTABLE}
