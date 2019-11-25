@@ -29,4 +29,16 @@ typedef struct {
   unsigned char *key_hash;
 } ProtocolIO;
 
+typedef struct {
+  int party;
+  unsigned char *port;
+
+  unsigned char *asset;
+  int asset_size;
+  unsigned char *cipher;
+  int cipher_size;
+
+  unsigned char *key;
+} ParsedInput;
+
 void asset_swap(void *arg);

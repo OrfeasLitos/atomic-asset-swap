@@ -11,18 +11,6 @@ const unsigned char *host = "localhost";
 const int SELLER = 2;
 const int BUYER  = 1;
 
-typedef struct {
-  int party;
-  unsigned char *port;
-
-  unsigned char *asset;
-  int asset_size;
-  unsigned char *cipher;
-  int cipher_size;
-
-  unsigned char *key;
-} ParsedInput;
-
 int get_party(unsigned char *input) {
   return (int) strtol(input, NULL, 10);
 }
