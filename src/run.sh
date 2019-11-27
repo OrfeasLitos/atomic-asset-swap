@@ -1,5 +1,6 @@
 KEY_FILE=key
 ASSET_FILE=movie.mp4
+ASSET_HASH_FILE=hashfile
 CIPHER_FILE=cipher
 EXECUTABLE=bin
 
@@ -10,13 +11,14 @@ CFLAGS="-lssl -lcrypto -DREMOTE_HOST=localhost -O3 -I"
 set -e
 
 python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CIPHER_FILE}
+python hash-file.py --preimage ${ASSET_FILE} --hash ${ASSET_HASH_FILE}
 
 ../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} ${UTIL} -o ${EXECUTABLE}
 
 if [[ -f "${EXECUTABLE}" ]]; then
   PORT=`cat port`
   echo $((PORT + 1)) > port
-  ./${EXECUTABLE} ${PORT} 1 ${CIPHER_FILE} &
+  ./${EXECUTABLE} ${PORT} 1 ${CIPHER_FILE} ${ASSET_HASH_FILE} &
   ./${EXECUTABLE} ${PORT} 2 ${ASSET_FILE} ${KEY_FILE}
-  rm ${EXECUTABLE} ${CIPHER_FILE}
+  rm ${EXECUTABLE} ${CIPHER_FILE} ${ASSET_HASH_FILE}
 fi

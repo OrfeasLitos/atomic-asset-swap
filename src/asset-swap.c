@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <ctype.h>
-#include <openssl/sha.h>
 
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
@@ -20,24 +19,47 @@ bool is_seller(int party) {
 }
 
 void print_usage(char *bin_name) {
-  fprintf(stderr, "usage: %s <port> <party_number: 1|2>"
+  fprintf(stderr, "\nusage: %s <port> <party_number: 1|2>"
                   " ?<file> ?<file>\n", bin_name);
   fprintf(stderr, "    for <party_number> \"1\" "
-                  "(buyer), add <cipher_file>\n");
+                  "(buyer), add <cipher_file> <asset_hash_file>\n");
   fprintf(stderr, "    for <party_number> \"2\" "
-                  "(seller), add <asset_file> <key_file>\n");
+                  "(seller), add <asset_file> <key_file>\n\n");
 }
 
 int check_args(int *party, int argc, char *argv[]) {
-  if (argc < 4 || argc > 5) {
+  if (argc >= 3) {
+    *party = get_party(argv[2]);
+  }
+
+  if (argc != 5) {
     if (argc == 1) {
-      fprintf(stderr, "port number, role, file(s) missing\n\n");
+      fprintf(stderr, "port number, role, files missing\n");
     } else if (argc == 2) {
-      fprintf(stderr, "role, file(s) missing\n\n");
-    } else if (argc == 3) {
-      fprintf(stderr, "file(s) missing\n\n");
+      fprintf(stderr, "role, files missing\n");
     } else {
-      fprintf(stderr, "too many arguments\n\n");
+      if (*party != BUYER && *party != SELLER) {
+        fprintf(stderr, "party must be either 1 or 2\n");
+      }
+      if (argc == 3) {
+        fprintf(stderr, "filenames missing\n");
+        if (*party == BUYER) {
+          fprintf(stderr, "party 1 (buyer) must have a "
+                          "<cipher_file> and an <asset_hash_file>\n");
+        } else if (*party == SELLER) {
+          fprintf(stderr, "party 2 (seller) must have an "
+                          "<asset_file> and a <key_file>\n");
+        }
+      } else if (argc == 4) {
+        fprintf(stderr, "second filename missing\n");
+        if (*party == BUYER) {
+          fprintf(stderr, "party 1 (buyer) misses an <asset_hash_file>\n");
+        } else if (*party == SELLER) {
+          fprintf(stderr, "party 2 (seller) misses a <key_file>\n");
+        }
+      } else {
+        fprintf(stderr, "too many arguments\n");
+      }
     }
 
     print_usage(argv[0]);
@@ -53,26 +75,6 @@ int check_args(int *party, int argc, char *argv[]) {
         return 1;
       }
     }
-  }
-
-  *party = get_party(argv[2]);
-  if (*party != BUYER && *party != SELLER) {
-    fprintf(stderr, "party must be either 1 or 2\n\n");
-    print_usage(argv[0]);
-    return 1;
-  }
-
-  if (*party == BUYER && argc != 4) {
-    fprintf(stderr, "party 1 (buyer) must have a <cipher_file>\n\n");
-    print_usage(argv[0]);
-    return 1;
-  }
-
-  if (*party == SELLER && argc != 5) {
-    fprintf(stderr, "party 2 (seller) must have an "
-                    "<asset_file> and a <key_file>\n\n");
-    print_usage(argv[0]);
-    return 1;
   }
 
   return 0;
@@ -125,6 +127,7 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     if (read_file(&(input->asset), &(input->asset_size), argv[3])) {
       return 1;
     }
+
     long key_size;
     if (read_file(&(input->key), &key_size, argv[4])) {
       return 1;
@@ -136,6 +139,16 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     }
   } else { // BUYER
     if (read_file(&(input->cipher), &(input->cipher_size), argv[3])) {
+      return 1;
+    }
+
+    long asset_hash_size;
+    if (read_file(&(input->expected_asset_hash), &asset_hash_size, argv[4])) {
+      return 1;
+    }
+    if (asset_hash_size != ASSET_HASH_SIZE) {
+      fprintf(stderr, "got asset hash of size %d, should "
+                      "be %d bytes\n", asset_hash_size, ASSET_HASH_SIZE);
       return 1;
     }
   }
@@ -155,9 +168,9 @@ int main(int argc, char *argv[]) {
   if (input.party == SELLER) {
     io.asset_plain = input.asset;
     io.asset_plain_size = input.asset_size;
-    io.asset_hash = SHA256(io.asset_plain, io.asset_plain_size, NULL);
     io.key = input.key;
   } else { // BUYER
+    io.expected_asset_hash = input.expected_asset_hash;
     io.asset_cipher = input.cipher;
     io.asset_cipher_size = input.cipher_size;
   }
