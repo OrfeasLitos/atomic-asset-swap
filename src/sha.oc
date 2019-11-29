@@ -35,7 +35,7 @@ static const uint32_t k[] = {
 };
 
 struct buffer_state {
-  const uint8_t * p;
+  const obliv uint8_t * p;
   size_t len;
   size_t total_len;
   int single_one_delivered; /* bool */
@@ -77,7 +77,7 @@ static void init_buf_state(struct buffer_state * state, const void * input, size
 }
 
 /* Return value: bool */
-static int calc_chunk(uint8_t chunk[CHUNK_SIZE], struct buffer_state * state) obliv
+static int calc_chunk(uint8_t obliv chunk[CHUNK_SIZE], struct buffer_state * state) obliv
 {
   size_t space_in_chunk;
 
@@ -168,7 +168,7 @@ void sha256(obliv uint8_t hash[32], const obliv uint8_t *input, size_t len) obli
   unsigned i, j;
 
   /* 512-bit chunks is what we will operate on. */
-  uint8_t chunk[64];
+  obliv uint8_t chunk[64];
 
   struct buffer_state state;
 
@@ -177,7 +177,7 @@ void sha256(obliv uint8_t hash[32], const obliv uint8_t *input, size_t len) obli
   while (calc_chunk(chunk, &state)) {
     obliv uint32_t ah[8];
 
-    const uint8_t *p = chunk;
+    const obliv uint8_t *p = chunk;
 
     /* Initialize working variables to current hash value: */
     for (i = 0; i < 8; i++)
