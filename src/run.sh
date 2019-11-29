@@ -10,10 +10,10 @@ CFLAGS="-lssl -lcrypto -DREMOTE_HOST=localhost -O3 -I"
 
 set -e
 
+../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} ${UTIL} -o ${EXECUTABLE}
+
 python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CIPHER_FILE}
 python hash-file.py --preimage ${ASSET_FILE} --hash ${ASSET_HASH_FILE}
-
-../obliv-c/bin/oblivcc ${CFLAGS} . ${SOURCE} ${UTIL} -o ${EXECUTABLE}
 
 if [[ -f "${EXECUTABLE}" ]]; then
   PORT=`cat port`
