@@ -125,10 +125,10 @@ static int calc_chunk(uint8_t chunk[CHUNK_SIZE], struct buffer_state * state) ob
     chunk += left;
 
     /* Storing of len * 8 as a big endian 64-bit without overflow. */
-    chunk[7] = (uint8_t) (len << 3);
+    chunk[7] = (len << 3) & 0xff;
     len >>= 5;
     for (i = 6; i >= 0; i--) {
-      chunk[i] = (uint8_t) len;
+      chunk[i] = len & 0xff;
       len >>= 8;
     }
     state->total_len_delivered = 1;
@@ -204,8 +204,8 @@ void sha256(obliv uint8_t hash[32], const obliv uint8_t *input, size_t len) obli
 
       for (j = 0; j < 16; j++) {
         if (i == 0) {
-          w[j] = (uint32_t) p[0] << 24 | (uint32_t) p[1] << 16 |
-            (uint32_t) p[2] << 8 | (uint32_t) p[3];
+          w[j] = ((p[0] << 24) & 0xffffffff) | ((p[1] << 16) & 0xffffffff) |
+            ((p[2] << 8) & 0xffffffff) | (p[3] & 0xffffffff);
           p += 4;
         } else {
           /* Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array: */
@@ -239,10 +239,10 @@ void sha256(obliv uint8_t hash[32], const obliv uint8_t *input, size_t len) obli
   /* Produce the final hash value (big-endian): */
   for (i = 0, j = 0; i < 8; i++)
   {
-    hash[j++] = (h[i] >> 24);
-    hash[j++] = (h[i] >> 16);
-    hash[j++] = (h[i] >> 8);
-    hash[j++] = h[i];
+    hash[j++] = (h[i] >> 24) & 0xff;
+    hash[j++] = (h[i] >> 16) & 0xff;
+    hash[j++] = (h[i] >> 8) & 0xff;
+    hash[j++] = h[i] & 0xff;
   }
 }
 
