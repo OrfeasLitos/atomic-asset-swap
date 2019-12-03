@@ -11,9 +11,6 @@ typedef obliv unsigned char obl_char;
 unsigned char *good_secret = "1234567890abcdefghijklmnopqrstu";
 unsigned char *bad_secret  = "fake_secret_to_baddies_like_you";
 
-// TODO: give asset_cipher to both parties as cmd argument
-// to avoid sending them obliviously with ocBroadcast()
-
 void check_asset_hash(obliv bool *seller_honest, obl_char *asset_plain,
   size_t asset_plain_size, obl_char *expected_asset_hash) {
   obl_char real_asset_hash[ASSET_HASH_SIZE];
