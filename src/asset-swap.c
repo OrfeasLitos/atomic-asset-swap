@@ -123,7 +123,7 @@ int read_file(unsigned char **buf, long *file_size, char *file_name) {
     return 1;
   }
 
-  buf[*file_size] = '\0';
+  (*buf)[*file_size] = '\0';
 
   fclose(fp);
   return 0;
