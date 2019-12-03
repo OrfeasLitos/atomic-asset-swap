@@ -1,6 +1,7 @@
 KEY_FILE=key
+KEY_HASH_FILE=key_hash_file
 ASSET_FILE=movie.mp4
-ASSET_HASH_FILE=hashfile
+ASSET_HASH_FILE=asset_hash_file
 CIPHER_FILE=cipher
 EXECUTABLE=bin
 
@@ -14,11 +15,12 @@ set -e
 
 python encrypt-file.py --key ${KEY_FILE} --plaintext ${ASSET_FILE} --cipher ${CIPHER_FILE}
 python hash-file.py --preimage ${ASSET_FILE} --hash ${ASSET_HASH_FILE}
+python hash-file.py --preimage ${KEY_FILE} --hash ${KEY_HASH_FILE}
 
 if [[ -f "${EXECUTABLE}" ]]; then
   PORT=`cat port`
   echo $((PORT + 1)) > port
-  ./${EXECUTABLE} ${PORT} 1 ${CIPHER_FILE} ${ASSET_HASH_FILE} &
+  ./${EXECUTABLE} ${PORT} 1 ${CIPHER_FILE} ${ASSET_HASH_FILE} ${KEY_HASH_FILE} &
   ./${EXECUTABLE} ${PORT} 2 ${ASSET_FILE} ${KEY_FILE}
-  rm ${EXECUTABLE} ${CIPHER_FILE} ${ASSET_HASH_FILE}
+  rm ${EXECUTABLE} ${CIPHER_FILE} ${ASSET_HASH_FILE} ${KEY_HASH_FILE}
 fi

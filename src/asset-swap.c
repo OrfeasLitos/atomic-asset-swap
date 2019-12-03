@@ -20,11 +20,20 @@ bool is_seller(int party) {
 
 void print_usage(char *bin_name) {
   fprintf(stderr, "\nusage: %s <port> <party_number: 1|2>"
-                  " ?<file> ?<file>\n", bin_name);
-  fprintf(stderr, "    for <party_number> \"1\" "
-                  "(buyer), add <cipher_file> <asset_hash_file>\n");
-  fprintf(stderr, "    for <party_number> \"2\" "
-                  "(seller), add <asset_file> <key_file>\n\n");
+                  " ?<file> ?<file> ?<file>\n", bin_name);
+  fprintf(stderr, "    for <party_number> \"1\" (buyer), add "
+                  "<cipher_file> <asset_hash_file> <key_hash_file>\n");
+  fprintf(stderr, "    for <party_number> \"2\" (seller), "
+                  "add <asset_file> <key_file>\n\n");
+}
+
+bool invalid_argc(party, argc) {
+  if (party != SELLER && party != BUYER) {
+    return false;
+  }
+
+  return (party == SELLER && argc != 5)
+      || (party == BUYER && argc != 6);
 }
 
 int check_args(int *party, int argc, char *argv[]) {
@@ -32,7 +41,7 @@ int check_args(int *party, int argc, char *argv[]) {
     *party = get_party(argv[2]);
   }
 
-  if (argc != 5) {
+  if (invalid_argc(*party, argc)) {
     if (argc == 1) {
       fprintf(stderr, "port number, role, files missing\n");
     } else if (argc == 2) {
@@ -45,7 +54,8 @@ int check_args(int *party, int argc, char *argv[]) {
         fprintf(stderr, "filenames missing\n");
         if (*party == BUYER) {
           fprintf(stderr, "party 1 (buyer) must have a "
-                          "<cipher_file> and an <asset_hash_file>\n");
+                          "<cipher_file>, an <asset_hash_file> "
+                          "and a <key_hash_file>\n");
         } else if (*party == SELLER) {
           fprintf(stderr, "party 2 (seller) must have an "
                           "<asset_file> and a <key_file>\n");
@@ -53,10 +63,13 @@ int check_args(int *party, int argc, char *argv[]) {
       } else if (argc == 4) {
         fprintf(stderr, "second filename missing\n");
         if (*party == BUYER) {
-          fprintf(stderr, "party 1 (buyer) misses an <asset_hash_file>\n");
+          fprintf(stderr, "party 1 (buyer) misses an <asset_hash_file>"
+                          " and a <key_hash_file>\n");
         } else if (*party == SELLER) {
           fprintf(stderr, "party 2 (seller) misses a <key_file>\n");
         }
+      } else if (*party == BUYER && argc == 5) {
+        fprintf(stderr, "party 1 (buyer) misses a <key_hash_file>\n");
       } else {
         fprintf(stderr, "too many arguments\n");
       }
@@ -149,6 +162,16 @@ int parse_args(ParsedInput *input, int argc, char *argv[]) {
     if (asset_hash_size != ASSET_HASH_SIZE) {
       fprintf(stderr, "got asset hash of size %d, should "
                       "be %d bytes\n", asset_hash_size, ASSET_HASH_SIZE);
+      return 1;
+    }
+
+    long key_hash_size;
+    if (read_file(&(input->expected_key_hash), &key_hash_size, argv[5])) {
+      return 1;
+    }
+    if (key_hash_size != KEY_HASH_SIZE) {
+      fprintf(stderr, "got key hash of size %d, should "
+                      "be %d bytes\n", key_hash_size, KEY_HASH_SIZE);
       return 1;
     }
   }
