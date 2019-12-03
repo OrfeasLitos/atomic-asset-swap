@@ -23,10 +23,10 @@ typedef struct {
   int asset_plain_size;
   unsigned char *asset_cipher;
   int asset_cipher_size;
-  unsigned char *asset_hash;
+  unsigned char *expected_asset_hash;
 
   unsigned char *key;
-  unsigned char *key_hash;
+  unsigned char *expected_key_hash;
 } ProtocolIO;
 
 typedef struct {
@@ -35,6 +35,8 @@ typedef struct {
 
   unsigned char *asset;
   int asset_size;
+  unsigned char *expected_asset_hash;
+  unsigned char *expected_key_hash;
   unsigned char *cipher;
   int cipher_size;
 
