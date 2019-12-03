@@ -14,10 +14,6 @@ int get_party(unsigned char *input) {
   return (int) strtol(input, NULL, 10);
 }
 
-bool is_seller(int party) {
-  return party == SELLER;
-}
-
 void print_usage(char *bin_name) {
   fprintf(stderr, "\nusage: %s <port> <party_number: 1|2>"
                   " ?<file> ?<file> ?<file>\n", bin_name);
