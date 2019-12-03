@@ -1,7 +1,5 @@
 #include <obliv.oh>
 #include <stdio.h>
-#include <assert.h>
-#include <openssl/sha.h>
 
 #include "../obliv-c/test/oblivc/common/util.h"
 #include "asset-swap.h"
