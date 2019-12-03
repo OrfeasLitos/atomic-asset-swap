@@ -8,7 +8,7 @@
 
 typedef obliv unsigned char obl_char;
 
-unsigned char *good_secret = "1234567890abcdefghijklmnopqrstu";
+unsigned char *good_secret = "real_secret_for_my_honest_buddy";
 unsigned char *bad_secret  = "fake_secret_to_baddies_like_you";
 
 void check_asset_hash(obliv bool *seller_honest, obl_char *asset_plain,
