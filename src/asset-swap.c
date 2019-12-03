@@ -196,6 +196,7 @@ int main(int argc, char *argv[]) {
     io.expected_asset_hash = input.expected_asset_hash;
     io.asset_cipher = input.cipher;
     io.asset_cipher_size = input.cipher_size;
+    io.expected_key_hash = input.expected_key_hash;
   }
 
   // do all printing before the connection starts
