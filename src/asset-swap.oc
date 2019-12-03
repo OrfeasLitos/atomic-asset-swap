@@ -42,6 +42,7 @@ void asset_swap(void* vargs) {
   feedOblivCharArray(expected_key_hash, args->expected_key_hash,
     KEY_HASH_SIZE, BUYER);
 
+  // check if asset hashes to public value
   obl_char real_asset_hash[ASSET_HASH_SIZE];
   sha256(real_asset_hash, asset_plain, asset_plain_size);
   for (size_t i = 0; i < ASSET_HASH_SIZE; ++i) {
@@ -50,6 +51,7 @@ void asset_swap(void* vargs) {
     }
   }
 
+  // check if cipher decrypts to asset
   obliv size_t pad_len = -asset_plain_size % AES_BLOCK_SIZE;
   for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
     // there is no `obliv for` so we can't put pad_len in `for` condition
@@ -67,6 +69,7 @@ void asset_swap(void* vargs) {
     }
   }
 
+  // check if key hashes to value sent to Buyer
   obl_char real_key_hash[KEY_HASH_SIZE];
   sha256(real_key_hash, key, KEY_SIZE);
   for (size_t i = 0; i < KEY_HASH_SIZE; ++i) {
