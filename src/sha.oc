@@ -34,7 +34,6 @@ static const uint32_t k[] = {
   0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-// TODO: make more vars and ifs obliv
 struct buffer_state {
   const obliv uint8_t * p;
   size_t len;
@@ -68,7 +67,8 @@ static obliv uint32_t right_rot(obliv uint32_t value, obliv unsigned int count) 
   return (value / powi(2, count)) | (value * powi(2,32 - count));
 }
 
-static void init_buf_state(struct buffer_state * state, const void * input, size_t len) obliv
+static void init_buf_state(struct buffer_state * state,
+  const obliv uint8_t * input, size_t len) obliv
 {
   state->p = input;
   state->len = len;
