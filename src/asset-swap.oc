@@ -14,6 +14,71 @@ unsigned char *bad_secret  = "fake_secret_to_baddies_like_you";
 // TODO: give asset_cipher to both parties as cmd argument
 // to avoid sending them obliviously with ocBroadcast()
 
+void check_asset_hash(obliv bool *seller_honest, obl_char *asset_plain,
+  size_t asset_plain_size, obl_char *expected_asset_hash) {
+  obl_char real_asset_hash[ASSET_HASH_SIZE];
+
+  sha256(real_asset_hash, asset_plain, asset_plain_size);
+
+  for (size_t i = 0; i < ASSET_HASH_SIZE; ++i) {
+    obliv if (expected_asset_hash[i] != real_asset_hash[i]) {
+      *seller_honest = false;
+    }
+  }
+}
+
+void check_decryption(obliv bool *seller_honest, obl_char *key,
+  obl_char *asset_plain, size_t asset_plain_size,
+  obl_char *expected_asset_cipher, size_t asset_cipher_size) {
+  obliv size_t pad_len = -asset_plain_size % AES_BLOCK_SIZE;
+
+  for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
+    // there is no `obliv for` so we can't put pad_len in `for` condition
+    obliv if (i < pad_len) {
+      asset_plain[asset_plain_size + i] = '\0';
+    }
+  }
+  // replaces asset_plain with cipher
+  for (size_t i = 0; i < asset_plain_size; i += AES_BLOCK_SIZE) {
+    aes_encrypt(asset_plain + i, key);
+  }
+  for (size_t i = 0; i < asset_cipher_size; ++i) {
+    obliv if (expected_asset_cipher[i] != asset_plain[i]) {
+      *seller_honest = false;
+    }
+  }
+}
+
+void check_key_hash(obliv bool *seller_honest, obl_char *key,
+  obl_char *expected_key_hash) {
+  obl_char real_key_hash[KEY_HASH_SIZE];
+
+  sha256(real_key_hash, key, KEY_SIZE);
+
+  for (size_t i = 0; i < KEY_HASH_SIZE; ++i) {
+    obliv if (expected_key_hash[i] != real_key_hash[i]) {
+      *seller_honest = false;
+    }
+  }
+}
+
+void choose_and_reveal_secret(unsigned char *output,
+  obliv bool seller_honest) {
+  obl_char secret[SECRET_SIZE];
+
+  obliv if (seller_honest) {
+    for (int i = 0; i < SECRET_SIZE; ++i) {
+      secret[i] = good_secret[i];
+    }
+  } else {
+    for (int i = 0; i < SECRET_SIZE; ++i) {
+      secret[i] = bad_secret[i];
+    }
+  }
+
+  revealOblivCharArray(output, secret, SECRET_SIZE, SELLER);
+}
+
 void asset_swap(void* vargs) {
   ProtocolIO *args = (ProtocolIO*) vargs;
 
@@ -40,55 +105,18 @@ void asset_swap(void* vargs) {
   feedOblivCharArray(expected_key_hash, args->expected_key_hash,
     KEY_HASH_SIZE, BUYER);
 
-  // check if asset hashes to public value
-  obl_char real_asset_hash[ASSET_HASH_SIZE];
-  sha256(real_asset_hash, asset_plain, asset_plain_size);
-  for (size_t i = 0; i < ASSET_HASH_SIZE; ++i) {
-    obliv if (expected_asset_hash[i] != real_asset_hash[i]) {
-      seller_honest = false;
-    }
-  }
+  check_asset_hash(&seller_honest, asset_plain,
+    asset_plain_size, expected_asset_hash);
 
-  // check if cipher decrypts to asset
-  obliv size_t pad_len = -asset_plain_size % AES_BLOCK_SIZE;
-  for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
-    // there is no `obliv for` so we can't put pad_len in `for` condition
-    obliv if (i < pad_len) {
-      asset_plain[asset_plain_size + i] = '\0';
-    }
-  }
-  // replaces asset_plain with cipher
-  for (size_t i = 0; i < asset_plain_size; i += AES_BLOCK_SIZE) {
-    aes_encrypt(asset_plain + i, key);
-  }
-  for (size_t i = 0; i < asset_cipher_size; ++i) {
-    obliv if (expected_asset_cipher[i] != asset_plain[i]) {
-      seller_honest = false;
-    }
-  }
+  check_decryption(&seller_honest, key,
+    asset_plain, asset_plain_size,
+    expected_asset_cipher, asset_cipher_size);
 
-  // check if key hashes to value sent to Buyer
-  obl_char real_key_hash[KEY_HASH_SIZE];
-  sha256(real_key_hash, key, KEY_SIZE);
-  for (size_t i = 0; i < KEY_HASH_SIZE; ++i) {
-    obliv if (expected_key_hash[i] != real_key_hash[i]) {
-      seller_honest = false;
-    }
-  }
+  check_key_hash(&seller_honest, key, expected_key_hash);
 
   // TODO: find faster way to reveal secret
   // and use user-defined secret
-  obl_char secret[SECRET_SIZE];
-  obliv if (seller_honest) {
-    for (int i = 0; i < SECRET_SIZE; ++i) {
-      secret[i] = good_secret[i];
-    }
-  } else {
-    for (int i = 0; i < SECRET_SIZE; ++i) {
-      secret[i] = bad_secret[i];
-    }
-  }
-  revealOblivCharArray(&args->secret, secret, SECRET_SIZE, SELLER);
+  choose_and_reveal_secret(&args->secret, seller_honest);
 
   double t2 = wallClock() - t1;
 
