@@ -1,8 +1,8 @@
-KEY_FILE=key
+KEY_FILE=key_file
 KEY_HASH_FILE=key_hash_file
 ASSET_FILE=movie.mp4
 ASSET_HASH_FILE=asset_hash_file
-CIPHER_FILE=cipher
+CIPHER_FILE=cipher_file
 EXECUTABLE=bin
 
 SOURCE="asset-swap.oc asset-swap.c"
