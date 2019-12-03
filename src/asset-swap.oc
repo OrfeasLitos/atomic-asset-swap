@@ -117,5 +117,5 @@ void asset_swap(void* vargs) {
 
   double t2 = wallClock() - t1;
 
-  printf("time: %f\n", t2);
+  printf("oblivious time: %f\n", t2);
 }

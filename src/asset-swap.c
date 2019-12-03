@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
 
   execYaoProtocol(&pd, asset_swap, &io);
 
-  printf("total time: %lf s\n", wallClock() - init_time);
+  printf("total protocol time: %lf s\n", wallClock() - init_time);
 
   cleanupProtocol(&pd);
 
