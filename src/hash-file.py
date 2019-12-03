@@ -11,8 +11,8 @@ def get_args():
 
 args = get_args()
 
-with open(args.preimage, 'r') as f:
-    preimage = bytes(f.read(), 'ascii')
+with open(args.preimage, 'rb') as f:
+    preimage = f.read()
 
 with open(args.hash, 'wb') as f:
     f.write(sha256(preimage).digest())
