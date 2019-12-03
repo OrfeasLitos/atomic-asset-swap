@@ -7,8 +7,8 @@
 #include "asset-swap.h"
 
 const unsigned char *host = "localhost";
-const int SELLER = 2;
-const int BUYER  = 1;
+const size_t SELLER = 2;
+const size_t BUYER  = 1;
 
 int get_party(unsigned char *input) {
   return (int) strtol(input, NULL, 10);

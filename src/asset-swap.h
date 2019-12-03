@@ -12,8 +12,8 @@
 
 #define AES_BLOCK_SIZE 16
 
-extern const int SELLER;
-extern const int BUYER;
+extern const size_t SELLER;
+extern const size_t BUYER;
 
 typedef struct {
   unsigned char secret[SECRET_SIZE];

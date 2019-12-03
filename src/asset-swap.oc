@@ -18,8 +18,8 @@ unsigned char *bad_secret  = "fake_secret_to_baddies_like_you";
 void asset_swap(void* vargs) {
   ProtocolIO *args = (ProtocolIO*) vargs;
 
-  int asset_cipher_size = ocBroadcastInt(args->asset_cipher_size, BUYER);
-  int asset_plain_size = ocBroadcastInt(args->asset_plain_size, SELLER);
+  size_t asset_cipher_size = ocBroadcastInt(args->asset_cipher_size, BUYER);
+  size_t asset_plain_size = ocBroadcastInt(args->asset_plain_size, SELLER);
 
   obl_char expected_asset_cipher[MAX_ASSET_CIPHER_SIZE],
            asset_plain[MAX_ASSET_PLAIN_SIZE], key[KEY_SIZE];
@@ -31,19 +31,19 @@ void asset_swap(void* vargs) {
   feedOblivCharArray(asset_plain, args->asset_plain, asset_plain_size, SELLER);
   feedOblivCharArray(key, args->key, KEY_SIZE, SELLER);
 
-  obliv int pad_len = -asset_plain_size % AES_BLOCK_SIZE;
-  for (int i = 0; i < AES_BLOCK_SIZE; ++i) {
+  obliv size_t pad_len = -asset_plain_size % AES_BLOCK_SIZE;
+  for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
     // there is no `obliv for` so we can't put pad_len in `for` condition
     obliv if (i < pad_len) {
       asset_plain[asset_plain_size + i] = '\0';
     }
   }
   // replaces asset_plain with cipher
-  for (int i = 0; i < asset_plain_size; i += AES_BLOCK_SIZE) {
+  for (size_t i = 0; i < asset_plain_size; i += AES_BLOCK_SIZE) {
     aes_encrypt(asset_plain + i, key);
   }
   obliv bool equal = true;
-  for (int i = 0; i < asset_cipher_size; ++i) {
+  for (size_t i = 0; i < asset_cipher_size; ++i) {
     obliv if (expected_asset_cipher[i] != asset_plain[i]) {
       equal = false;
     }
