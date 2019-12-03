@@ -195,15 +195,6 @@ int main(int argc, char *argv[]) {
     io.expected_key_hash = input.expected_key_hash;
   }
 
-  // do all printing before the connection starts
-  // or expect weird TCP failures...
-  if (input.party == BUYER) {
-    printf("party: %d, port: %s\n", input.party, input.port);
-  } else {
-    printf("party: %d, port: %s, filename: %s, contents: %s\n",
-           input.party, input.port, argv[3], input.asset);
-  }
-
   if (input.party == BUYER) {
     ocTestUtilTcpOrDie(&pd, NULL, input.port);
   } else {
