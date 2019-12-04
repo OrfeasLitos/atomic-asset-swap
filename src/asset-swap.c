@@ -210,6 +210,10 @@ int main(int argc, char *argv[]) {
 
   cleanupProtocol(&pd);
 
+  if (input.party == SELLER) {
+    printf("%s\n", io.secret);
+  }
+
   free(input.asset);
 
   return 0;
