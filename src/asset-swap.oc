@@ -86,9 +86,9 @@ void asset_swap(void* vargs) {
 
   obliv bool seller_honest = true;
 
-  obl_char expected_asset_cipher[MAX_ASSET_CIPHER_SIZE],
+  obl_char expected_asset_cipher[ASSET_CIPHER_SIZE],
            expected_asset_hash[ASSET_HASH_SIZE],
-           asset_plain[MAX_ASSET_PLAIN_SIZE], key[KEY_SIZE],
+           asset_plain[ASSET_PLAIN_SIZE], key[KEY_SIZE],
            expected_key_hash[KEY_HASH_SIZE];
 
   // move values to obliv variables
