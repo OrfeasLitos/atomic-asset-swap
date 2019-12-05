@@ -1,8 +1,8 @@
 KEY_FILE=key_file
-ASSET_FILE=movie.mp4
 AES_BLOCK_SIZE=16
 
 # names unimportant, deleted at the end
+ASSET_FILE=asset_file
 KEY_HASH_FILE=key_hash_file
 ASSET_HASH_FILE=asset_hash_file
 CIPHER_FILE=cipher_file
@@ -14,9 +14,17 @@ CFLAGS="-DREMOTE_HOST=localhost -O3 -I"
 
 set -e
 
-ASSET_SIZE=`stat --printf=%s ${ASSET_FILE}`
+if [ $# -eq 0 ]
+  then
+    echo "1 numerical argument needed"
+    exit
+fi
+
+ASSET_SIZE=$1
 ASSET_SIZE_ROUNDED=$((${ASSET_SIZE} + (${AES_BLOCK_SIZE} - 1 - \
   ((${ASSET_SIZE} - 1) % ${AES_BLOCK_SIZE}))))
+
+head -c ${ASSET_SIZE} /dev/urandom > ${ASSET_FILE}
 
 sed -i "/ASSET_PLAIN_SIZE/c\#define ASSET_PLAIN_SIZE ${ASSET_SIZE_ROUNDED}" asset-swap.h
 sed -i "/ASSET_CIPHER_SIZE/c\#define ASSET_CIPHER_SIZE ${ASSET_SIZE_ROUNDED}" asset-swap.h
@@ -44,4 +52,4 @@ ulimit -Ss ${ORIGINAL_STACK_SIZE}
 sed -i "/ASSET_PLAIN_SIZE/c\#define ASSET_PLAIN_SIZE 1024" asset-swap.h
 sed -i "/ASSET_CIPHER_SIZE/c\#define ASSET_CIPHER_SIZE 1024" asset-swap.h
 
-rm ${EXECUTABLE} ${CIPHER_FILE} ${ASSET_HASH_FILE} ${KEY_HASH_FILE}
+rm ${EXECUTABLE} ${ASSET_FILE} ${CIPHER_FILE} ${ASSET_HASH_FILE} ${KEY_HASH_FILE}
